@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package frame;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -10,23 +11,28 @@ import java.sql.ResultSet;
 import javax.swing.JOptionPane;
 import java.sql.SQLException;
 import javax.swing.table.DefaultTableModel;
+import casier.connection;
+import java.sql.*;
 
 /**
  *
  * @author MyLaptop
  */
 public class data_user extends javax.swing.JFrame {
-private Connection con;
-private Statement stat;
-private ResultSet res;
-    
+
+
+static DefaultTableModel usn;
+
     /**
      * Creates new form data_user
      */
     public data_user() {
         initComponents();
-        ShowDataTable();
+        viewdataUser("");
+        settingTableUser();
+        
     }
+
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -45,7 +51,7 @@ private ResultSet res;
         jTextField1 = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tbl_usn = new javax.swing.JTable();
         bt_kembali = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -83,23 +89,28 @@ private ResultSet res;
         });
 
         bt_hapus.setText("Hapus");
+        bt_hapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_hapusActionPerformed(evt);
+            }
+        });
 
         bt_edit.setText("Edit");
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-search-24.png"))); // NOI18N
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tbl_usn.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null, null}
             },
             new String [] {
-                "id_user", "Username", "Password", "Role", "Nama Lengkap", "Email", "No.Telepon"
+                "No", "User_id", "Username", "Password", "Role", "Nama Lengkap", "Email", "No.Telepon"
             }
         ));
-        jScrollPane1.setViewportView(jTable1);
+        jScrollPane1.setViewportView(tbl_usn);
 
         bt_kembali.setText("Kembali");
         bt_kembali.addActionListener(new java.awt.event.ActionListener() {
@@ -173,7 +184,7 @@ private ResultSet res;
         dashboard menu = new dashboard();
         menu.setVisible(true);
         menu.revalidate();
-        
+
         dispose();
     }//GEN-LAST:event_bt_kembaliActionPerformed
 
@@ -181,32 +192,14 @@ private ResultSet res;
         tambah_user menu = new tambah_user();
         menu.setVisible(true);
         menu.revalidate();
-        
+
         dispose();
     }//GEN-LAST:event_bt_tambahActionPerformed
-    
-    public void ShowDataTable() {
-        try {
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/casier", "root", "");
-            String query = "SELECT * FROM 'users'";
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(query);
-            DefaultTableModel tm = (DefaultTableModel) jTable1.getModel();
-            tm.setRowCount(0);
-            while (rs.next()) {
-                String user_id = rs.getString("user_id");
-                String username = rs.getString("username");
-                String password = rs.getString("password");
-                String role = rs.getString("role");
-                String nama_lengkap = rs.getString("nama_lengkap");
-                String email = rs.getString("email");
-                int no_telepon = rs.getInt("no_telepon");
-                tm.addRow(new Object[]{user_id,username, password, role, nama_lengkap, email, no_telepon});
-            }
-        } catch(SQLException ex){
-            System.out.println(ex);
-        }
-    }
+
+    private void bt_hapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_hapusActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bt_hapusActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -252,7 +245,69 @@ private ResultSet res;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTable jTable1;
     private javax.swing.JTextField jTextField1;
+    private javax.swing.JTable tbl_usn;
     // End of variables declaration//GEN-END:variables
+public static void viewdataUser(String where) {
+    try {
+        // Pastikan model tabel usn sudah diinisialisasi sebelumnya
+        if (usn == null) {
+            usn = new DefaultTableModel(
+                new String[] { "No", "username", "password", "role", "nama_lengkap", "email", "no_telepon" }, 0
+            );
+        }
+
+        // Bersihkan data lama di model tabel
+        for (int i = usn.getRowCount() - 1; i >= 0; i--) {
+            usn.removeRow(i);
+        }
+
+        // Koneksi ke database
+        Connection K = casier.connection.konek();
+        Statement S = K.createStatement();
+        String Q = "SELECT * FROM users " + where;
+        ResultSet R = S.executeQuery(Q);
+
+        int no = 1;
+        while (R.next()) {
+            String username = R.getString("username");
+            String password = R.getString("password");
+            String role = R.getString("role");
+            String namaLengkap = R.getString("nama_lengkap");
+            String email = R.getString("email");
+            String noTelepon = R.getString("no_telepon");
+
+            // Tambahkan data ke dalam model tabel
+            Object[] P = { no, username, password, role, namaLengkap, email, noTelepon };
+            usn.addRow(P);
+
+            no++;
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+
+    private void settingTableUser() {
+        usn = (DefaultTableModel) tbl_usn.getModel();
+        tbl_usn.getColumnModel().getColumn(0).setMinWidth(50);
+        tbl_usn.getColumnModel().getColumn(0).setMaxWidth(70);
+
+        tbl_usn.getColumnModel().getColumn(1).setMinWidth(0);
+        tbl_usn.getColumnModel().getColumn(1).setMaxWidth(0);
+
+        tbl_usn.getColumnModel().getColumn(2).setMinWidth(350);
+        tbl_usn.getColumnModel().getColumn(2).setMaxWidth(500);
+
+        tbl_usn.getColumnModel().getColumn(3).setMinWidth(350);
+        tbl_usn.getColumnModel().getColumn(3).setMaxWidth(500);
+
+        tbl_usn.getColumnModel().getColumn(4).setMinWidth(350);
+        tbl_usn.getColumnModel().getColumn(4).setMaxWidth(500);
+
+        tbl_usn.getColumnModel().getColumn(5).setMinWidth(350);
+        tbl_usn.getColumnModel().getColumn(5).setMaxWidth(500);
+    }
+
 }

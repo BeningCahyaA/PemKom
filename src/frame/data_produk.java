@@ -3,6 +3,13 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package frame;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import javax.swing.table.DefaultTableModel;
+import casier.connection;
+import java.sql.*;
 
 /**
  *
@@ -13,8 +20,11 @@ public class data_produk extends javax.swing.JFrame {
     /**
      * Creates new form data_produk
      */
+    static DefaultTableModel prd;
     public data_produk() {
         initComponents();
+        settingTableProduk();
+        viewdataProduk("");
     }
 
     /**
@@ -27,18 +37,110 @@ public class data_produk extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        bt_tambah = new javax.swing.JButton();
+        bt_hapus = new javax.swing.JButton();
+        bt_edit = new javax.swing.JButton();
+        bt_kembali = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tbl_produk = new javax.swing.JTable();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(153, 204, 255));
+
+        jLabel1.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel1.setFont(new java.awt.Font("Century Gothic", 1, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("DATA PRODUK");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(47, 47, 47)
+                .addComponent(jLabel1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(jLabel1)
+                .addContainerGap(32, Short.MAX_VALUE))
+        );
+
+        jPanel2.setBackground(new java.awt.Color(255, 255, 255));
+
+        bt_tambah.setText("Tambah");
+        bt_tambah.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_tambahActionPerformed(evt);
+            }
+        });
+
+        bt_hapus.setText("Hapus");
+
+        bt_edit.setText("Edit");
+        bt_edit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_editActionPerformed(evt);
+            }
+        });
+
+        bt_kembali.setText("Kembali");
+        bt_kembali.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_kembaliActionPerformed(evt);
+            }
+        });
+
+        tbl_produk.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null},
+                {null, null, null, null, null, null}
+            },
+            new String [] {
+                "id_produk", "id_kategori", "Nama", "Description", "Harga", "Stok"
+            }
+        ));
+        jScrollPane1.setViewportView(tbl_produk);
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 753, Short.MAX_VALUE)
+                    .addGroup(jPanel2Layout.createSequentialGroup()
+                        .addComponent(bt_tambah)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(bt_hapus)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(bt_edit)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(bt_kembali)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(bt_tambah)
+                    .addComponent(bt_hapus)
+                    .addComponent(bt_edit)
+                    .addComponent(bt_kembali))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(215, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -46,14 +148,38 @@ public class data_produk extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bt_editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_editActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_bt_editActionPerformed
+
+    private void bt_kembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_kembaliActionPerformed
+        dashboard menu = new dashboard();
+        menu.setVisible(true);
+        menu.revalidate();
+
+        dispose();
+    }//GEN-LAST:event_bt_kembaliActionPerformed
+
+    private void bt_tambahActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_tambahActionPerformed
+        tambah_produk menu = new tambah_produk();
+        menu.setVisible(true);
+        menu.revalidate();
+
+        dispose();
+    }//GEN-LAST:event_bt_tambahActionPerformed
 
     /**
      * @param args the command line arguments
@@ -91,6 +217,67 @@ public class data_produk extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bt_edit;
+    private javax.swing.JButton bt_hapus;
+    private javax.swing.JButton bt_kembali;
+    private javax.swing.JButton bt_tambah;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JTable tbl_produk;
     // End of variables declaration//GEN-END:variables
+
+    public static void viewdataProduk(String where) {
+        try {
+
+            for (int i = prd.getRowCount() - 1; i >= 0; i--) {
+                prd.removeRow(i);
+            }
+
+            Connection K = casier.connection.konek();
+            Statement S = K.createStatement();
+            String Q = "SELECT * FROM produk " + where;
+//            System.out.println(Q);
+            ResultSet R = S.executeQuery(Q);
+            int no = 1;
+            while (R.next()) {
+                int produk_id = R.getInt("produk_id");
+                int kategori_id = R.getInt("kategori_id");
+                String name = R.getString("name");
+                String description = R.getString("description");
+                String harga = R.getString("harga");
+                String stock = R.getString("stock");
+
+                Object[] P = {no, produk_id, kategori_id, name, description, harga, stock};
+                prd.addRow(P);
+
+                no++;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void settingTableProduk() {
+        prd = (DefaultTableModel) tbl_produk.getModel();
+        tbl_produk.getColumnModel().getColumn(0).setMinWidth(50);
+        tbl_produk.getColumnModel().getColumn(0).setMaxWidth(70);
+
+        tbl_produk.getColumnModel().getColumn(1).setMinWidth(0);
+        tbl_produk.getColumnModel().getColumn(1).setMaxWidth(0);
+
+        tbl_produk.getColumnModel().getColumn(2).setMinWidth(350);
+        tbl_produk.getColumnModel().getColumn(2).setMaxWidth(500);
+
+        tbl_produk.getColumnModel().getColumn(3).setMinWidth(350);
+        tbl_produk.getColumnModel().getColumn(3).setMaxWidth(500);
+
+        tbl_produk.getColumnModel().getColumn(4).setMinWidth(350);
+        tbl_produk.getColumnModel().getColumn(4).setMaxWidth(500);
+
+        tbl_produk.getColumnModel().getColumn(5).setMinWidth(350);
+        tbl_produk.getColumnModel().getColumn(5).setMaxWidth(500);
+    }
+
 }
