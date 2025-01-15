@@ -4,13 +4,6 @@
  */
 package frame;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import javax.swing.JOptionPane;
-import java.sql.*;
-
 /**
  *
  * @author MyLaptop
@@ -20,10 +13,8 @@ public class profile extends javax.swing.JFrame {
     /**
      * Creates new form profile
      */
-   public profile(String username) {
-        this.TUSERNAME = username;  // Store the username
-        initComponents();  // Initialize components
-        loadProfileData();  // Load profile data from the database
+    public profile() {
+        initComponents();
     }
 
     /**
@@ -276,11 +267,7 @@ public class profile extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-             
-                
-        String username = "john_doe";  // Example
-        profile profilePage = new profile(username);
-        profilePage.setVisible(true);
+                new profile().setVisible(true);
             }
         });
     }
@@ -305,81 +292,4 @@ public class profile extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
     private javax.swing.JPanel jPanel5;
     // End of variables declaration//GEN-END:variables
-
-public void getUserData(String username) {
-    // SQL query to retrieve user data from the users table
-    String query = "SELECT username, password, role, nama, email, no_telp FROM users WHERE username = ?";
-
-    try {
-        // Establish database connection
-        Connection connection = (Connection) casier.connection.konek();
-        PreparedStatement preparedStatement = connection.prepareStatement(query);
-        preparedStatement.setString(1, username);  // Set the username parameter for the query
-
-        // Execute the query
-        ResultSet resultSet = preparedStatement.executeQuery();
-
-        // Check if the user exists
-        if (resultSet.next()) {
-            // Set data to labels
-            TUSERNAME.setText(resultSet.getString("username"));
-            TPASSWORD.setText(resultSet.getString("password"));
-            TROLE.setText(resultSet.getString("role"));
-            TNAMAL.setText(resultSet.getString("nama"));
-            TEMAIL.setText(resultSet.getString("email"));
-            TNOTELP.setText(resultSet.getString("no_telp"));
-        } else {
-            // If the user is not found
-            JOptionPane.showMessageDialog(this, "User not found.");
-        }
-    } catch (SQLException e) {
-        // Handle potential errors
-        JOptionPane.showMessageDialog(this, "Error retrieving user data: " + e.getMessage());
-    }
-}
-private void loadProfileData() {
-        String query = "SELECT * FROM users WHERE username = ?";
-
-        try {
-            Connection connection = (Connection) casier.connection.konek();
-            PreparedStatement preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, username);  // Set the username parameter
-
-            ResultSet resultSet = preparedStatement.executeQuery();
-
-            if (resultSet.next()) {
-                lblUsername.setText(resultSet.getString("username"));
-                lblPassword.setText(resultSet.getString("password"));
-                lblRole.setText(resultSet.getString("role"));
-                lblFullName.setText(resultSet.getString("fullname"));
-                lblEmail.setText(resultSet.getString("email"));
-                lblPhone.setText(resultSet.getString("phone"));
-            }
-        } catch (SQLException e) {
-            JOptionPane.showMessageDialog(this, "Error loading profile data: " + e.getMessage());
-        }
-    }
-
-    private void initComponents() {
-        // Initialize your components here (labels, buttons, etc.)
-        lblUsername = new javax.swing.JLabel("Username: ");
-        lblPassword = new javax.swing.JLabel("Password: ");
-        lblRole = new javax.swing.JLabel("Role: ");
-        lblFullName = new javax.swing.JLabel("Full Name: ");
-        lblEmail = new javax.swing.JLabel("Email: ");
-        lblPhone = new javax.swing.JLabel("Phone: ");
-
-        // Add components to the form and set layout
-    }
-
-    // Declare your labels or text fields to show user data
-    private javax.swing.JLabel lblUsername;
-    private javax.swing.JLabel lblPassword;
-    private javax.swing.JLabel lblRole;
-    private javax.swing.JLabel lblFullName;
-    private javax.swing.JLabel lblEmail;
-    private javax.swing.JLabel lblPhone;
-
-
-
 }
