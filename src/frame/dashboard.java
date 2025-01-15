@@ -10,10 +10,12 @@ package frame;
  */
 public class dashboard extends javax.swing.JFrame {
 
+
     /**
      * Creates new form dashboard
      */
     public dashboard() {
+        
         initComponents();
     }
 

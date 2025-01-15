@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 package frame;
+
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,6 +11,7 @@ import java.sql.Statement;
 import javax.swing.table.DefaultTableModel;
 import casier.connection;
 import java.sql.*;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -21,6 +23,7 @@ public class data_produk extends javax.swing.JFrame {
      * Creates new form data_produk
      */
     static DefaultTableModel prd;
+
     public data_produk() {
         initComponents();
         settingTableProduk();
@@ -82,6 +85,11 @@ public class data_produk extends javax.swing.JFrame {
         });
 
         bt_hapus.setText("Hapus");
+        bt_hapus.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_hapusActionPerformed(evt);
+            }
+        });
 
         bt_edit.setText("Edit");
         bt_edit.addActionListener(new java.awt.event.ActionListener() {
@@ -99,13 +107,13 @@ public class data_produk extends javax.swing.JFrame {
 
         tbl_produk.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null},
+                {null, null, null, null, null, null, null}
             },
             new String [] {
-                "id_produk", "id_kategori", "Nama", "Description", "Harga", "Stok"
+                "no", "id_produk", "id_kategori", "Nama", "Description", "Harga", "Stok"
             }
         ));
         jScrollPane1.setViewportView(tbl_produk);
@@ -162,7 +170,29 @@ public class data_produk extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bt_editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_editActionPerformed
-        // TODO add your handling code here:
+          int selectedRow = tbl_produk.getSelectedRow(); // Ambil baris yang dipilih
+    if (selectedRow != -1) {
+        int produk_id = (int) tbl_produk.getValueAt(selectedRow, 1); // Ambil produk_id dari kolom yang sesuai
+        String name = (String) tbl_produk.getValueAt(selectedRow, 3); // Ambil nama produk
+        String description = (String) tbl_produk.getValueAt(selectedRow, 4); // Ambil deskripsi produk
+        String harga = (String) tbl_produk.getValueAt(selectedRow, 5); // Ambil harga produk
+        String stock = (String) tbl_produk.getValueAt(selectedRow, 6); // Ambil stock produk
+        
+        // Buka form editor untuk mengedit produk
+        frame.edit_produk editProdukFrame = new frame.edit_produk(this, true);
+        
+        // Set data produk ke form editor
+        editProdukFrame.setProdukId(produk_id);
+        editProdukFrame.setName(name);
+        editProdukFrame.setDescription(description);
+        editProdukFrame.setHarga(harga);
+        editProdukFrame.setStock(stock);
+        
+        // Tampilkan editor
+        editProdukFrame.setVisible(true);
+    } else {
+        JOptionPane.showMessageDialog(this, "Pilih produk yang akan diedit.");
+    }
     }//GEN-LAST:event_bt_editActionPerformed
 
     private void bt_kembaliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_kembaliActionPerformed
@@ -180,6 +210,59 @@ public class data_produk extends javax.swing.JFrame {
 
         dispose();
     }//GEN-LAST:event_bt_tambahActionPerformed
+
+    private void bt_hapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_hapusActionPerformed
+        int n = tbl_produk.getSelectedRow();  // Ambil baris yang dipilih di tabel produk
+        if (n != -1) {  // Cek jika ada baris yang dipilih
+            // Ambil produk_id dari kolom pertama
+            int produk_id = Integer.parseInt(tbl_produk.getValueAt(n, 1).toString());
+            System.out.println("Produk ID yang dipilih: " + produk_id);
+
+            // Tampilkan konfirmasi penghapusan
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Apakah Anda yakin ingin menghapus produk ini?",
+                    "Konfirmasi Hapus",
+                    JOptionPane.YES_NO_OPTION);
+
+            if (confirm == JOptionPane.YES_OPTION) {
+                try {
+                    // Query untuk menghapus produk berdasarkan produk_id
+                    String query = "DELETE FROM produk WHERE produk_id = ?";
+
+                    // Persiapkan koneksi dan statement
+                    Connection conn = (Connection) casier.connection.konek();  // Sesuaikan koneksi dengan objek Anda
+                    PreparedStatement stmt = conn.prepareStatement(query);
+
+                    // Set nilai produk_id pada statement
+                    stmt.setInt(1, produk_id);
+
+                    // Eksekusi query
+                    int rowsAffected = stmt.executeUpdate();
+                    System.out.println("Jumlah baris yang terpengaruh: " + rowsAffected);
+
+                    // Cek apakah penghapusan berhasil
+                    if (rowsAffected > 0) {
+                        JOptionPane.showMessageDialog(this, "Produk berhasil dihapus");
+                        // Update tabel setelah penghapusan
+                        viewdataProduk("");  // Memanggil fungsi untuk menampilkan data produk terbaru
+                    } else {
+                        JOptionPane.showMessageDialog(this, "Produk tidak ditemukan atau gagal dihapus");
+                    }
+
+                    // Tutup statement dan koneksi
+                    stmt.close();
+                    conn.close();
+                } catch (SQLException e) {
+                    // Menampilkan error jika terjadi masalah pada query atau koneksi
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(this, "Terjadi kesalahan saat menghapus produk: " + e.getMessage());
+                }
+            }
+        } else {
+            // Jika tidak ada baris yang dipilih
+            JOptionPane.showMessageDialog(this, "Anda belum memilih produk untuk dihapus");
+        }
+    }//GEN-LAST:event_bt_hapusActionPerformed
 
     /**
      * @param args the command line arguments
@@ -229,33 +312,47 @@ public class data_produk extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 
     public static void viewdataProduk(String where) {
+        // Menghapus semua baris dari tabel sebelum memasukkan data yang baru
         try {
-
             for (int i = prd.getRowCount() - 1; i >= 0; i--) {
                 prd.removeRow(i);
             }
 
-            Connection K = casier.connection.konek();
-            Statement S = K.createStatement();
-            String Q = "SELECT * FROM produk " + where;
-//            System.out.println(Q);
-            ResultSet R = S.executeQuery(Q);
-            int no = 1;
-            while (R.next()) {
-                int produk_id = R.getInt("produk_id");
-                int kategori_id = R.getInt("kategori_id");
-                String name = R.getString("name");
-                String description = R.getString("description");
-                String harga = R.getString("harga");
-                String stock = R.getString("stock");
+            // Membuka koneksi ke database
+            try (Connection K = casier.connection.konek(); Statement S = K.createStatement()) {
 
-                Object[] P = {no, produk_id, kategori_id, name, description, harga, stock};
-                prd.addRow(P);
+                // Membuat query SQL untuk mengambil data produk berdasarkan kondisi where
+                String Q = "SELECT * FROM produk " + where;
+                // System.out.println(Q); // Uncomment untuk melihat query yang digunakan
 
-                no++;
+                // Menjalankan query
+                try (ResultSet R = S.executeQuery(Q)) {
+                    int no = 1;
+                    while (R.next()) {
+                        int produk_id = R.getInt("produk_id");
+                        int kategori_id = R.getInt("kategori_id");
+                        String name = R.getString("name");
+                        String description = R.getString("description");
+                        String harga = R.getString("harga");
+                        String stock = R.getString("stock");
+
+                        // Menambahkan data produk ke dalam tabel
+                        Object[] P = {no, produk_id, kategori_id, name, description, harga, stock};
+                        prd.addRow(P);
+
+                        no++;
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    JOptionPane.showMessageDialog(null, "Error fetching data: " + e.getMessage());
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Database connection error: " + e.getMessage());
             }
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "An error occurred while processing data: " + e.getMessage());
         }
     }
 

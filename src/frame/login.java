@@ -330,4 +330,30 @@ public class login extends javax.swing.JFrame {
             throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
         }
   }
+  
+  public boolean validateLogin(String username, String password) {
+    // SQL query to validate the username and password
+    String query = "SELECT * FROM users WHERE username = ? AND password = ?";
+
+    try {
+        // Establish database connection
+        Connection connection = (Connection) casier.connection.konek();
+        PreparedStatement preparedStatement = connection.prepareStatement(query);
+        preparedStatement.setString(1, username);  // Set the username parameter
+        preparedStatement.setString(2, password);  // Set the password parameter
+
+        // Execute the query
+        ResultSet resultSet = preparedStatement.executeQuery();
+
+        // If the result set has a row, the login is valid
+        if (resultSet.next()) {
+            return true;
+        }
+    } catch (SQLException e) {
+        // Handle errors
+        JOptionPane.showMessageDialog(this, "Error during login: " + e.getMessage());
+    }
+    return false;
+}
+
 }
