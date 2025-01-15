@@ -5,14 +5,13 @@
 package frame;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.Statement;
 import java.sql.ResultSet;
-import javax.swing.JOptionPane;
 import java.sql.SQLException;
+import java.sql.Statement;
 import javax.swing.table.DefaultTableModel;
 import casier.connection;
 import java.sql.*;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,17 +19,16 @@ import java.sql.*;
  */
 public class data_user extends javax.swing.JFrame {
 
-
-static DefaultTableModel usn;
+    static DefaultTableModel usn;
 
     /**
      * Creates new form data_user
      */
     public data_user() {
         initComponents();
-        viewdataUser("");
         settingTableUser();
-        
+        viewdataUser("");
+
     }
 
     /**
@@ -48,7 +46,7 @@ static DefaultTableModel usn;
         bt_tambah = new javax.swing.JButton();
         bt_hapus = new javax.swing.JButton();
         bt_edit = new javax.swing.JButton();
-        jTextField1 = new javax.swing.JTextField();
+        serch = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbl_usn = new javax.swing.JTable();
@@ -96,18 +94,26 @@ static DefaultTableModel usn;
         });
 
         bt_edit.setText("Edit");
+        bt_edit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_editActionPerformed(evt);
+            }
+        });
+
+        serch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                serchKeyReleased(evt);
+            }
+        });
 
         jLabel2.setIcon(new javax.swing.ImageIcon(getClass().getResource("/img/icons8-search-24.png"))); // NOI18N
 
         tbl_usn.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+
             },
             new String [] {
-                "No", "User_id", "Username", "Password", "Role", "Nama Lengkap", "Email", "No.Telepon"
+                "no", "User_id", "Username", "Password", "Role", "Nama Lengkap", "Email", "No.Telepon"
             }
         ));
         jScrollPane1.setViewportView(tbl_usn);
@@ -140,7 +146,7 @@ static DefaultTableModel usn;
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 146, Short.MAX_VALUE)
                         .addComponent(jLabel2)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(serch, javax.swing.GroupLayout.PREFERRED_SIZE, 294, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -155,7 +161,7 @@ static DefaultTableModel usn;
                             .addComponent(bt_edit)
                             .addComponent(bt_kembali)))
                     .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(serch, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(jLabel2)))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 148, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -197,8 +203,91 @@ static DefaultTableModel usn;
     }//GEN-LAST:event_bt_tambahActionPerformed
 
     private void bt_hapusActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_hapusActionPerformed
-        // TODO add your handling code here:
+        int n = tbl_usn.getSelectedRow();
+        if (n != -1) {
+            int id = Integer.parseInt(tbl_usn.getValueAt(n, 0).toString());
+            String FULLNAME = tbl_usn.getValueAt(n, 1).toString();
+
+            int opsi = JOptionPane.showConfirmDialog(this,
+                    "Apakah Anda yakin ingin menghapus data " + FULLNAME + "?",
+                    "Hapus Data",
+                    JOptionPane.YES_NO_OPTION);
+            if (opsi == 0) {
+                String Q = "DELETE FROM users "
+                        + "WHERE user_id =" + id;
+
+                try {
+                    Connection K = casier.connection.konek();
+                    Statement S = K.createStatement();
+                    S.executeUpdate(Q);
+                    viewdataUser("");
+                    JOptionPane.showMessageDialog(this, "Data " + FULLNAME + " telah terhapus");
+                } catch (SQLException e) {
+                    JOptionPane.showMessageDialog(this, "gagal di hapus!!");
+
+                }
+            }
+
+        } else {
+            JOptionPane.showMessageDialog(this, "Anda belum memilih data");
+        }
     }//GEN-LAST:event_bt_hapusActionPerformed
+
+    private void bt_editActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_editActionPerformed
+        int n = tbl_usn.getSelectedRow();
+        if (n != -1) {
+            // Ambil data dari kolom yang sesuai di tabel
+            int user_id = Integer.parseInt(tbl_usn.getValueAt(n, 0).toString()); // ID pengguna
+            String username = tbl_usn.getValueAt(n, 2).toString(); // Username
+            String password = tbl_usn.getValueAt(n, 3).toString(); // Password
+            String role = tbl_usn.getValueAt(n, 4).toString(); // Role (admin/user)
+            String nama_lengkap = tbl_usn.getValueAt(n, 5).toString(); // Nama Lengkap
+            String email = tbl_usn.getValueAt(n, 6).toString(); // Email
+            String no_telp = tbl_usn.getValueAt(n, 7).toString(); // Nomor Telepon (di kolom paling akhir)
+
+            // Membuka form untuk mengedit data pengguna
+            frame.edit_user EU = new frame.edit_user(this, true);
+
+            // Menetapkan data pengguna ke form editor
+            EU.setUserId(user_id); // Mengatur ID pengguna
+            EU.setUsername(username); // Mengatur username
+            EU.setPassword(password); // Mengatur password
+            EU.setRole(role); // Mengatur role (admin/user)
+            EU.setFullname(nama_lengkap); // Mengatur nama lengkap
+            EU.setEmail(email); // Mengatur email
+            EU.setPhoneNumber(no_telp); // Mengatur nomor telepon
+
+            // Menampilkan editor untuk mengedit data
+            EU.setVisible(true);
+        } else {
+            // Jika tidak ada baris yang dipilih
+            JOptionPane.showMessageDialog(this, "Anda belum memilih data");
+        }
+    }//GEN-LAST:event_bt_editActionPerformed
+
+    private void serchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_serchKeyReleased
+        String key = serch.getText().trim();  // Ambil teks pencarian dan hapus spasi ekstra
+
+        // Cek jika key kosong
+        if (key.isEmpty()) {
+            // Jika pencarian kosong, tampilkan semua data
+            viewdataUser("");  // Kirim query kosong atau tanpa WHERE clause
+            return;  // Hentikan eksekusi jika tidak ada teks yang dimasukkan
+        }
+
+        // Menghindari masalah dengan query kosong
+        String where = "WHERE "
+                + "user_id LIKE '%" + key + "%' OR "
+                + "username LIKE '%" + key + "%' OR "
+                + "password LIKE '%" + key + "%' OR "
+                + "role LIKE '%" + key + "%' OR "
+                + "nama_lengkap LIKE '%" + key + "%' OR "
+                + "email LIKE '%" + key + "%' OR "
+                + "no_telepon LIKE '%" + key + "%'";
+
+        // Panggil metode untuk menampilkan data sesuai dengan kriteria pencarian
+        viewdataUser(where);
+    }//GEN-LAST:event_serchKeyReleased
 
     /**
      * @param args the command line arguments
@@ -245,69 +334,77 @@ static DefaultTableModel usn;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextField1;
+    private javax.swing.JTextField serch;
     private javax.swing.JTable tbl_usn;
     // End of variables declaration//GEN-END:variables
 public static void viewdataUser(String where) {
-    try {
-        // Pastikan model tabel usn sudah diinisialisasi sebelumnya
-        if (usn == null) {
-            usn = new DefaultTableModel(
-                new String[] { "No", "username", "password", "role", "nama_lengkap", "email", "no_telepon" }, 0
-            );
+        try {
+            // Pastikan model tabel usn sudah diinisialisasi sebelumnya
+            if (usn == null) {
+                usn = new DefaultTableModel(
+                        new String[]{"No", "username", "password", "role", "nama_lengkap", "email", "no_telepon"}, 0
+                );
+            }
+
+            // Bersihkan data lama di model tabel
+            usn.setRowCount(0);
+
+            // Koneksi ke database
+            Connection K = casier.connection.konek();
+            if (K == null) {
+                throw new SQLException("Koneksi ke database gagal!");
+            }
+            Statement S = K.createStatement();
+
+            // Query SQL
+            String Q = "SELECT * FROM users" + where;
+            ResultSet R = S.executeQuery(Q);
+
+            // Tambahkan data ke model tabel
+            int no = 1;
+            while (R.next()) {
+                int user_id = R.getInt("user_id");
+                String username = R.getString("username");
+                String password = R.getString("password");
+                String role = R.getString("role");
+                String namaLengkap = R.getString("nama_lengkap");
+                String email = R.getString("email");
+                String noTelepon = R.getString("no_telepon");
+
+                Object[] rowData = {no++, user_id, username, password, role, namaLengkap, email, noTelepon};
+                usn.addRow(rowData);
+            }
+            R.close();
+            S.close();
+            K.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
-        // Bersihkan data lama di model tabel
-        for (int i = usn.getRowCount() - 1; i >= 0; i--) {
-            usn.removeRow(i);
-        }
-
-        // Koneksi ke database
-        Connection K = casier.connection.konek();
-        Statement S = K.createStatement();
-        String Q = "SELECT * FROM users " + where;
-        ResultSet R = S.executeQuery(Q);
-
-        int no = 1;
-        while (R.next()) {
-            String username = R.getString("username");
-            String password = R.getString("password");
-            String role = R.getString("role");
-            String namaLengkap = R.getString("nama_lengkap");
-            String email = R.getString("email");
-            String noTelepon = R.getString("no_telepon");
-
-            // Tambahkan data ke dalam model tabel
-            Object[] P = { no, username, password, role, namaLengkap, email, noTelepon };
-            usn.addRow(P);
-
-            no++;
-        }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-}
-
 
     private void settingTableUser() {
         usn = (DefaultTableModel) tbl_usn.getModel();
-        tbl_usn.getColumnModel().getColumn(0).setMinWidth(50);
+
+        tbl_usn.getColumnModel().getColumn(0).setMinWidth(50); // Kolom No
         tbl_usn.getColumnModel().getColumn(0).setMaxWidth(70);
 
-        tbl_usn.getColumnModel().getColumn(1).setMinWidth(0);
-        tbl_usn.getColumnModel().getColumn(1).setMaxWidth(0);
+        tbl_usn.getColumnModel().getColumn(1).setMinWidth(90); // Kolom username
+        tbl_usn.getColumnModel().getColumn(1).setMaxWidth(90);
 
-        tbl_usn.getColumnModel().getColumn(2).setMinWidth(350);
-        tbl_usn.getColumnModel().getColumn(2).setMaxWidth(500);
+        tbl_usn.getColumnModel().getColumn(2).setMinWidth(90); // Kolom password
+        tbl_usn.getColumnModel().getColumn(2).setMaxWidth(90);
 
-        tbl_usn.getColumnModel().getColumn(3).setMinWidth(350);
-        tbl_usn.getColumnModel().getColumn(3).setMaxWidth(500);
+        tbl_usn.getColumnModel().getColumn(3).setMinWidth(90); // Kolom role
+        tbl_usn.getColumnModel().getColumn(3).setMaxWidth(90);
 
-        tbl_usn.getColumnModel().getColumn(4).setMinWidth(350);
-        tbl_usn.getColumnModel().getColumn(4).setMaxWidth(500);
+        tbl_usn.getColumnModel().getColumn(4).setMinWidth(90); // Kolom nama_lengkap
+        tbl_usn.getColumnModel().getColumn(4).setMaxWidth(90);
 
-        tbl_usn.getColumnModel().getColumn(5).setMinWidth(350);
-        tbl_usn.getColumnModel().getColumn(5).setMaxWidth(500);
+        tbl_usn.getColumnModel().getColumn(5).setMinWidth(90); // Kolom email
+        tbl_usn.getColumnModel().getColumn(5).setMaxWidth(90);
+
+        tbl_usn.getColumnModel().getColumn(6).setMinWidth(90); // Kolom no_telepon
+        tbl_usn.getColumnModel().getColumn(6).setMaxWidth(90);
     }
 
 }

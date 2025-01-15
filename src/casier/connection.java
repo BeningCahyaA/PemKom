@@ -19,7 +19,7 @@ public class connection {
         dataSource.setPassword("");
         dataSource.setServerName("localhost");
         dataSource.setDatabaseName("casier");
-        dataSource.setPortNumber(3306);
+        dataSource.setPortNumber(3307);
         dataSource.setAllowMultiQueries(true);
         dataSource.setServerTimezone("Asia/Jakarta");
         c =dataSource.getConnection();
